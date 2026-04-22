@@ -9,11 +9,21 @@ const Confirmation = ({ details, onBack }) => {
     style={style1.background}
     blurRadius={5} 
   >
-          <Text style={styles.title}>Event Registration Form</Text>
+      <Text style={styles.title}>Event Registration Form</Text>
+      <Text style={styles.title} testID="confirmText">Confirmation</Text>
 
-    <View style={styles.container} testID='confirmationDetails'>
-      
-    </View>
+      <Text style={styles.detail}>Name: {details.name}</Text>
+      <Text style={styles.detail}>Email: {details.email}</Text>
+      <Text style={styles.detail}>Phone: {details.phone}</Text>
+      <Text style={styles.detail}>Event: {details.event}</Text>
+
+      <TouchableOpacity style={styles.button} onPress={onBack} testID="backButton">
+        <Text style={styles.buttonText}>Back</Text>
+      </TouchableOpacity>
+
+      <View style={styles.container} testID='confirmationDetails'>
+        
+      </View>
     </ImageBackground>
   );
 

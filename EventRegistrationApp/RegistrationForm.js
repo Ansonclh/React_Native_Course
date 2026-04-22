@@ -4,9 +4,18 @@ import { Picker } from '@react-native-picker/picker';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ImageBackground,TouchableOpacity  } from 'react-native';
 
 const RegistrationForm = ({ onConfirm }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [event, setEvent] = useState('Select an event');
 
-
-  
+  const handleSubmit = () => {
+    if (!name || !email || !phone || event === 'Select an event') {
+      alert('Error', 'Please fill in all fields.');
+      return;
+    }
+    onConfirm({ name, email, phone, event });
+  };
 
   return (
     <ImageBackground
@@ -17,8 +26,48 @@ const RegistrationForm = ({ onConfirm }) => {
       <Text style={styles.title}>Event Registration Form</Text>
 
       <View style={styles.container} testID='registrationFormDetails'>
+        <View testID='formName'>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+          style={styles.input}
+          onChangeText={setName}
+          value={name}
+        />
+        </View>
+        <View testID='formEmail'>
+          <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              onChangeText={setEmail}
+              value={email}
+            />
+        </View>
 
-        
+        <View testID='formPhone'>
+          <Text style={styles.label}>Phone</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={setPhone}
+            value={phone}
+          />
+        </View>
+
+        <View testID='formPicker'>
+          <Text style={styles.label}>Select Event</Text>
+          <Picker
+            selectedValue={event}
+            style={styles.picker}
+            onValueChange={(itemValue) => setEvent(itemValue)}
+          >
+            <Picker.Item label="Select an event" value="Select an event" />
+            <Picker.Item label="Conference" value="Conference" />
+            <Picker.Item label="Workshop" value="Workshop" />
+            <Picker.Item label="Webinar" value="Webinar" />
+          </Picker>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );

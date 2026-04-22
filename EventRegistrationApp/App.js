@@ -5,11 +5,23 @@ import RegistrationForm from './RegistrationForm';
 import Confirmation from './Confirmation';
 
 const App = () => {
+  const [registrationDetails, setRegistrationDetails] = useState(null);
 
+  const handleConfirm = (details) => {
+    setRegistrationDetails(details);
+  };
+
+  const handleBack = () => {
+    setRegistrationDetails(null);
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <RegistrationForm/>
+      {registrationDetails ? (
+        <Confirmation details={registrationDetails} onBack={handleBack} />
+      ) : (
+        <RegistrationForm onConfirm={handleConfirm}/>
+      )}
     </SafeAreaView>
   );
 };
