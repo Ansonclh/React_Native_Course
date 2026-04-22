@@ -8,8 +8,10 @@ const QuizDetails = () => {
   return (
     <View style={styles.detailsContainer}>
       <Text style={styles.detailsText} testID='currentQuestion'>
+        Question {currentQuestionIndex + 1} of {questions.length}
       </Text>
       <Text style={styles.detailsText} testID='totalCurrentQuestion'>
+        Total Questions: {questions.length}
       </Text>
     </View>
   );
