@@ -19,7 +19,7 @@ export default function FavoriteScreen() {
 
   // Assuming you have a similar structure for articles in your Redux store
   const favoriteArticles = useSelector((state) => state.favorites);
-  const favoriteArticlesList = favoriteArticles?.favoriteArticles || [];
+  const favoriteArticlesList = favoriteArticles?.favoriteArticles || [];  //access the favoriteArticles array from the favorites slice of the Redux store, and if it doesn't exist, it defaults to an empty array. This ensures that favoriteArticlesList will always be an array, preventing potential errors when trying to render the list of favorite articles.
 
   if (favoriteArticlesList.length === 0) {
     return (
@@ -55,7 +55,42 @@ export default function FavoriteScreen() {
         </Text>
       </View>
     
+       <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={{
+          backgroundColor: "#2563EB",
+          padding: 10,
+          borderRadius: 5,
+          marginTop: 10,
+          width: 100,
+          alignItems: "center",
+          marginLeft: 20,
+        }}
+      >
+        <Text style={{ color: "#fff" }}>Go back</Text>
+      </TouchableOpacity>
      
+       <FlatList
+        data={favoriteArticlesList}
+        contentContainerStyle={styles.listContentContainer}
+        keyExtractor={(item) => item.idArticle} // Update the key according to your article data
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.cardContainer}
+            onPress={() => navigation.navigate("ArticleDetail", item)} // Navigate to the article detail screen
+          >
+            <Image
+              source={{ uri: item.thumbnail }} // Assuming your articles have a thumbnail field
+              style={styles.articleImage}
+            />
+            <Text style={styles.articleTitle}>
+              {item.title.length > 20
+                ? `${item.title.slice(0, 20)}...`
+                : item.title}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
      
     </>
   );

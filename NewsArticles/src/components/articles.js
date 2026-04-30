@@ -14,7 +14,12 @@ export default function Articles({ categories, articles }) {
     <View style={styles.container}>
       <Text style={styles.title} testID="title">Latest News</Text>
       <View testID="articlesDisplay">
-     
+        <FlatList
+          data={articles}
+          keyExtractor={(item) => item.idArticle}
+          renderItem={renderItem}  //in constant renderItem, we are passing the current article (item), its index, and navigation as props to ArticleCard component, and returning the ArticleCard component to be rendered for each article in the FlatList
+          numColumns={2}
+      />
       </View>
     </View>
   );
@@ -25,7 +30,20 @@ const ArticleCard = ({ item, index, navigation }) => {
     <View
       style={[styles.cardContainer, { paddingLeft: 20, paddingRight: 15}]} testID="articleDisplay"
     >
-      
+      <TouchableOpacity
+        onPress={() => navigation.navigate("ArticleDetail", { ...item })}  //parsing current article's data (item) as params to ArticleDetail screen
+      >
+          <Image
+            source={{ uri: item.thumbnail }}
+            style={[styles.articleImage, { height: index % 3 === 0 ? hp(25) : hp(35) }]}  //if index divisible by 3, set height to 25% of screen height, else set to 35%
+          />
+          <Text style={styles.articleText}>
+            {item.title.length > 20 ? item.title.slice(0, 20) + "..." : item.title}  {/*if title length exceeds 20 characters, slice it to 20 characters and add "..." at the end, else display full title  */}
+          </Text>
+          <Text style={styles.articleDescription}>
+            {item.description.length > 40 ? item.description.slice(0, 40) + "..." : item.description}  {/*if description length exceeds 40 characters, slice it to 40 characters and add "..." at the end, else display full description  */}
+          </Text>
+      </TouchableOpacity>
     </View>
   );
 };

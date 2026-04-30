@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image, StyleSheet } from "react-native";
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
-  widthPercentageToDP as wp,
+  widthPercentageToDP as wp,  //DP = density-independent pixels
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import Categories from "../components/categories";
@@ -301,7 +301,7 @@ export default function HomeScreen() {
 
   // Filter articles by active category during rendering
   const filteredArticles = allArticles.filter(
-    (article) => article.category === activeCategory
+    (article) => article.category === activeCategory  //callback function to check each article in allArticles and return only those that match the activeCategory
   );
 
   return (
@@ -328,12 +328,16 @@ export default function HomeScreen() {
         </View>
 
         <View testID="categoryList">
-        
+          <Categories
+            categories={categories}
+            activeCategory={activeCategory}
+            handleChangeCategory={handleChangeCategory}
+          />
         </View>
 
         <View testID="articleList">
-         
-          </View>
+          <Articles articles={filteredArticles} categories={categories} />
+        </View>
       </ScrollView>
     </View>
   );

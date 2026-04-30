@@ -10,23 +10,23 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function WelcomeScreen() {
   const ring1padding = useSharedValue(0);
-  const ring2padding = useSharedValue(0);
+  const ring2padding = useSharedValue(0); //2 background circles for the logo
 
-  const navigation = useNavigation();
+  const navigation = useNavigation();  //useNavigation hook to get the navigation object (navigate between screens)
 
   useEffect(() => {
-    ring1padding.value = 0;
-    ring2padding.value = 0;
+    ring1padding.value = 0;  //value is padding for the first ring, initially set to 0
+    ring2padding.value = 0;  //value is padding for the second ring, initially set to 0
     setTimeout(
-      () => (ring1padding.value = withSpring(ring1padding.value + hp(10))),
+      () => (ring1padding.value = withSpring(ring1padding.value + hp(10))),  //spring effect for the first ring, with a delay of 0.1s, hp means height percentage, so the padding will be 10% of the screen height across different screen sizes
       100
     );
     setTimeout(
-      () => (ring2padding.value = withSpring(ring2padding.value + hp(10.5))),
+      () => (ring2padding.value = withSpring(ring2padding.value + hp(10.5))),  //spring effect for the second ring, with a delay of 0.3s
       300
     );
 
-    setTimeout(() => navigation.navigate("Home"), 2500);
+    setTimeout(() => navigation.navigate("Home"), 2500);  //navigate to the Home screen after 2.5s
   }, []);
 
   return (

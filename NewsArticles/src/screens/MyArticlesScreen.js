@@ -6,10 +6,11 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -19,27 +20,77 @@ export default function MyArticlesScreen() {
   const navigation = useNavigation();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-     
-    };
+  // const logout = () => {
+  //   auth.signOut();
+  // };
 
-    fetchArticles();
+  // onPress={() => logout()} is same as onPress={logout}, onPress={() => logout()}, onPress={() => { logout(); }} and onPress={() => auth.signOut()}
+  // onPress={() => logout()} call custom function. It is a wrapper function, first trigger arrow function then logout()
+  // onPress={logout} receive Native event object as argument and normally logout doesn't use event object (no params). It is pro choice for readability for functions without params. Reference to function.
+  // **If it is onPress={logout()}, it will call the function during rendering, which is not the intended behavior. We want to call logout only when the button is pressed, so we should use onPress={logout} or onPress={() => logout()} to ensure it is called at the right time.**
+  // onPress={() => auth.signOut()} is an inline function.
+
+  // for onPress={(e) => logout(e)}, it normally use in event object (local variable) that the click event will trigger
+  // for onPress={() => logout(e)}, the variable e is a global variable
+
+
+  //useCallback() is memoized version of function that only changes if its dependencies change. It is used to optimize performance by preventing unnecessary re-creations of functions on every render.
+  //So it is a function that can call later. It usually execute in render phase
+  //useEffect() is hook to run side-effect code after render. It is usually used for API calls, logging or changing the DOM.
+  const fetchArticles = useCallback(async (isManualRefresh = false) => {
+    try {
+      if (isManualRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      const storedArticles = await AsyncStorage.getItem("customArticles");
+      setArticles(storedArticles ? JSON.parse(storedArticles) : []);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  //useEffect() runs when the component mounts and whenever the dependencies change. If navigate from screen A to screen B, screen A is still mounted and useEffect() will not run again.
+  //useFocusEffect() runs when the screen comes into focus, which means it will run every time you navigate to that screen, even if it's already mounted. So if navigate from screen A to screen B, and then back to screen A, useFocusEffect() will run again because screen A is focused again.
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchArticles();
+    }, [fetchArticles])
+  );
 
   const handleAddArticle = () => {
     navigation.navigate("NewsFormScreen");
   };
 
   const handleArticleClick = (article) => {
+    navigation.navigate("CustomNewsScreen", { article }); // Pass the article object to the detail screen
   };
 
-  const deleteArticle = async () => {
-    
+  const deleteArticle = async (index) => {
+    try {
+      const updatedArticles = [...articles];
+      updatedArticles.splice(index, 1); // Remove article from array
+      await AsyncStorage.setItem("customArticles", JSON.stringify(updatedArticles)); // Update AsyncStorage
+      await fetchArticles(); // Reload from storage so UI always reflects latest saved data
+    } catch (error) {
+      console.error("Error deleting the article:", error);
+    }
   };
 
-  const editArticle = () => {
+  const handleRefresh = () => {
+    fetchArticles(true);
+  };
+
+  const editArticle = (article, index) => {
+    navigation.navigate("NewsFormScreen", { articleToEdit: article, articleIndex: index });
   };
 
   return (
@@ -54,25 +105,47 @@ export default function MyArticlesScreen() {
       </TouchableOpacity>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#f59e0b" />
+        <ActivityIndicator size="large" color="#f59e0b" /> //Loading icon
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+        >
           {articles.length === 0 ? (
             <Text style={styles.noArticlesText}>No articles added yet.</Text>
           ) : (
             articles.map((article, index) => (
               <View key={index} style={styles.articleCard} testID="articleCard">
-                <TouchableOpacity testID="handleArticleBtn">
-                  
+                <TouchableOpacity testID="handleArticleBtn" onPress={() => handleArticleClick(article)}>  {/* for () => handleArticleClick(article), the variable article takes the global variable (map function variable) to run the function with the specific article data, but if it is (article) -> handleArticleClick(article), it would refer to the function itself, not the specific article. It defines article as a local variable */}
+                   {article.image && (
+                    <Image
+                      source={{ uri: article.image }}
+                      style={styles.articleImage}
+                    />
+                  )}
                   <Text style={styles.articleTitle}>{article.title}</Text>
                   <Text style={styles.articleDescription} testID="articleDescp">
-                  
+                    {article.description?.substring(0, 50) + "..."}
                   </Text>
                 </TouchableOpacity>
 
                 {/* Edit and Delete Buttons */}
                 <View style={styles.actionButtonsContainer} testID="editDeleteButtons">
+                  <TouchableOpacity
+                    onPress={() => editArticle(article, index)}
+                    style={styles.editButton}
+                  >
+                    <Text style={styles.editButtonText}>Edit</Text>
+                  </TouchableOpacity>
                   
+                  <TouchableOpacity
+                    onPress={() => deleteArticle(index)}
+                    style={styles.deleteButton}
+                  >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity>
                  
                 </View>
               </View>

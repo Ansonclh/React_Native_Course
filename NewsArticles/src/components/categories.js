@@ -41,6 +41,7 @@ export default function Categories({
           </View>
           <Text style={styles.categoryText}>My News</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => navigation.navigate("FavoriteScreen")} // Navigate to "MyFood" screen
           style={styles.categoryContainer}
@@ -55,7 +56,7 @@ export default function Categories({
         </TouchableOpacity>
 
         {categories.map((cat, index) => {
-          let isActive = cat.strCategory == activeCategory;
+          let isActive = cat.strCategory == activeCategory;  // Check if category is active
           let activeButtonStyle = isActive
             ? styles.activeButton
             : styles.inactiveButton;

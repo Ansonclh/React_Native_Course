@@ -9,17 +9,17 @@ import { useDispatch, useSelector } from "react-redux"; // Redux hooks
 import { toggleFavorite } from "../redux/favoritesSlice"; // Redux action
 
 export default function ArticleDetailScreen(props) {
-  const article = props.route.params; // Article passed from previous screen
+  const article = props.route.params; // Article passed from previous screen  **********
 
   const dispatch = useDispatch();
-  const favoriteArticles = useSelector(
+  const favoriteArticles = useSelector(  //access current state of favoriteArticles from the Redux store using useSelector hook, and assign it to the constant favoriteArticles
     (state) => state.favorites.favoriteArticles
   );
   const isFavourite = favoriteArticles?.some(
     (favArticle) => favArticle.idArticle === article.idArticle
   ); // Check by idArticle
 
-  const navigation = useNavigation();
+  const navigation = useNavigation();  //navigate back to previous screen to toggle favourite state of the article
 
   const handleToggleFavorite = () => {
     dispatch(toggleFavorite(article)); // Dispatch the article to favorites
@@ -33,9 +33,32 @@ export default function ArticleDetailScreen(props) {
     >
       {/* Article Image */}
       <View style={styles.imageContainer} testID="imageContainer">
-         
+         <Image
+            source={{ uri: article.urlToImage }}
+            style={styles.articleImage}
+          />
       </View>
 
+       <View style={styles.topButtonsContainer}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          style={[
+            styles.favoriteButton,
+            {
+              backgroundColor: "white",
+            },
+          ]}
+        >
+          <Text>{isFavourite ? "♥" : "♡"}</Text>
+        </TouchableOpacity>
+      </View>
       {/* Back Button and Favorite Button */}
                  
 
@@ -48,13 +71,11 @@ export default function ArticleDetailScreen(props) {
             testID="articleDetailsContainer"
           >
             <Text style={styles.articleTitle} testID="articleTitle">
-         
-             
-              
-              </Text>
+              {article.title}
+            </Text>
             <Text style={styles.articleCategory} testID="articleCategory">
-                         
-              </Text>
+              {article.category}
+            </Text>
           </View>
 
           {/* Description */}
@@ -63,7 +84,12 @@ export default function ArticleDetailScreen(props) {
             style={styles.sectionContainer}
             testID="sectionContainer"
           >
-          
+            <Text style={styles.sectionTitle} testID="sectionTitle">
+                Description
+            </Text>
+            <Text style={styles.descriptionText} testID="descriptionText">
+                {article.description}
+            </Text>
           </View>
         </View>
     </ScrollView>

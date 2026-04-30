@@ -10,9 +10,27 @@ export default function NewsFormScreen({ route, navigation }) {
   const [description, setDescription] = useState(
     articleToEdit ? articleToEdit.description : ""
   );
+  //NewsFormScreen allows user to create / edit an article by filling out a form with title, image URL, and description. It uses useState to manage form state, and AsyncStorage to save articles locally. If articleToEdit is passed via route params, it pre-fills the form for editing. The saveArticle function will handle saving the new or edited article to AsyncStorage and updating the parent component through onArticleEdited callback.
+   const saveArticle = async () => {
+    const newArticle = { title, image, description };
+    try {
+      const existingArticles = await AsyncStorage.getItem("customArticles");
+      const articles = existingArticles ? JSON.parse(existingArticles) : [];
 
-  const saveArticle = async () => {
-    
+      // If editing an article, update it; otherwise, add a new one
+      if (articleToEdit !== undefined) {  //undefined parmas indicates whether we're editing an existing article or creating a new one. If articleToEdit is not undefined, it means we're editing an existing article, and we should update the article at the specified index in the articles array. If it is undefined, it means we're creating a new article, and we should add it to the end of the articles array.
+        articles[articleIndex] = newArticle;
+        await AsyncStorage.setItem("customArticles", JSON.stringify(articles));
+        if (onArticleEdited) onArticleEdited(); // Notify the edit
+      } else {
+        articles.push(newArticle); // Add new article
+        await AsyncStorage.setItem("customArticles", JSON.stringify(articles));
+      }
+
+      navigation.goBack(); // Return to the previous screen
+    } catch (error) {
+      console.error("Error saving the article:", error);
+    }
   };
 
   return (

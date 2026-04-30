@@ -19,6 +19,10 @@ export default function CustomNewsScreen() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  //for props, it used to pass data from parent component to child component (not visible in URL, lost on page refresh), best use for private, complex data
+  //for route.params, it is used to pass data between screens in a navigation stack (visible in URL, persists on refresh), best use for resource identifiers
+  //to pass data for route.params, we can use navigation.navigate("ScreenName", { key: value }) to pass data when navigating to a screen, and then access it in the target screen using useRoute hook and route.params.key. This is particularly useful for passing simple data like IDs or flags that are needed to fetch or display specific content on the target screen.
+
   const route = useRoute();
   const { article } = route.params || {}; // Pass the article object as a parameter
   const favoriteArticles = useSelector(
@@ -32,6 +36,8 @@ export default function CustomNewsScreen() {
         <Text style={styles.title}>No Article Details Available</Text>
       </View>
     );
+  } else {
+    console.log("Article details:", article); // Log the article details to verify the data structure
   }
 
   const handleToggleFavorite = () => {
@@ -46,17 +52,33 @@ export default function CustomNewsScreen() {
     >
       {/* Article Image */}
       <View style={styles.imageContainer} testID="imageContainer">
-      
+          <Image source={{ uri: article.image }} style={styles.articleImage} />
       </View>
       <View
         style={styles.topButtonsContainer} testID="topButtonsContainer"
       >
-       
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Text>Back</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          style={styles.favoriteButton}
+        >
+          <Text>{isFavourite ? "♥" : "♡"}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Article Details */}
       <View style={styles.contentContainer} testID="contentContainer">
-      
+        <Text style={styles.articleTitle}>{article.title}</Text>
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Content</Text>
+          <Text style={styles.contentText}>{article.description}</Text>
+        </View>
       </View>
     </ScrollView>
   );
